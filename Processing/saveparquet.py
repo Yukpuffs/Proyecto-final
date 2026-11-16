@@ -1,0 +1,24 @@
+
+class GuardarParquet:
+
+    def __init__(self, dataframe):
+        self.df = dataframe
+
+    def guardar_en_parquet(self):
+
+        ruta_salida = (
+            "s3a://analisis-tweets/processed/comentarios_parquet/"
+        )
+
+        (
+            self.df.write
+            .mode("overwrite")
+            .option("compression", "snappy")
+            .parquet(ruta_salida)
+        )
+
+        print("====================================")
+        print("Datos guardados correctamente en S3")
+        print(f"Ubicacion: {ruta_salida}")
+        print("Formato: Parquet")
+        print("====================================")
