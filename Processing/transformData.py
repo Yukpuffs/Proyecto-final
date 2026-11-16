@@ -26,41 +26,10 @@ class transformar_datos:
         # Extraer hashtags y menciones
         df = (
             df
-            .withColumn("hashtags",F.transform(F.regexp_extract_all(texto,F.lit(r"(?U)#(\w+)"),1
-                    ),
-                    lambda h: F.lower(h)
-                )
-            )
-            .withColumn(
-                "menciones",
-                F.transform(
-                    F.regexp_extract_all(
-                        texto,
-                        F.lit(r"@(\w{1,15})"),
-                        1
-                    ),
-                    lambda m: F.lower(m)
-                )
-            )
-            .withColumn(
-                "es_retuit_texto",
-                texto.rlike(r"^RT @")
-            )
-            .withColumn(
-                "usuario_retuiteado",
-                F.lower(
-                    F.regexp_extract(texto, r"^RT @(\w+)", 1)
-                )
-            )
-            .withColumn(
-                "es_respuesta",
-                texto.rlike(r"^@") & ~texto.rlike(r"^RT @")
-            )
-            .withColumn(
-                "es_retuit",
-                (F.col("retweet") == 1) |
-                F.col("es_retuit_texto")
-            )
+            .withColumn("hashtags",F.transform(F.regexp_extract_all(texto,F.lit(r"(?U)#(\w+)"),1),lambda h: F.lower(h)))
+            .withColumn("menciones",F.transform(    F.regexp_extract_all(texto,F.lit(r"@(\w{1,15})"), 1 ),lambda m: F.lower(m)))
+            .withColumn("es_retuit_texto",     texto.rlike(r"^RT @") ) .withColumn("usuario_retuiteado",F.lower(F.regexp_extract(texto, r"^RT @(\w+)", 1)))
+            .withColumn("es_respuesta", texto.rlike(r"^@") & ~texto.rlike(r"^RT @")).withColumn("es_retuit",(F.col("retweet") == 1) | F.col("es_retuit_texto"))
             .withColumn("n_hashtags", F.size("hashtags"))
             .withColumn("n_menciones", F.size("menciones"))
         )
