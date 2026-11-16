@@ -1,20 +1,30 @@
-services:
-  spark-master:
-    image: spark:4.3.0-java17
-    container_name: spark-master
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
-    ports:
-      - "8080:8080"
-      - "7077:7077"
 
-  spark-worker:
-    image: spark:4.3.0-java17
-    container_name: spark-worker
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    depends_on:
-      - spark-master
-    environment:
-      - SPARK_WORKER_CORES=2
-      - SPARK_WORKER_MEMORY=2g
+services:
+  neo4j:
+    image: neo4j:5
+    container_name: neo4j
     ports:
-      - "8081:8081"
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
+    volumes:
+      - neo4j_data:/data
+
+  spark:
+    image: spark:${SPARK_TAG}
+    container_name: spark-job
+    working_dir: /app
+    env_file: .env
+    volumes:
+      - ./:/app
+    depends_on:
+      - neo4j
+    command: >
+      /opt/spark/bin/spark-submit
+      --conf spark.jars.ivy=/tmp/.ivy
+      --packages ${SPARK_PACKAGES}
+      /app/main.py
+
+volumes:
+  neo4j_data:
