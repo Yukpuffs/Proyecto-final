@@ -1,8 +1,9 @@
 
 class GuardarParquet: # Create a class to handle saving DataFrame to Parquet
 
-    def __init__(self, dataframe):
+    def __init__(self, dataframe, ruta_salida):
         self.df = dataframe
+        self.ruta_salida = ruta_salida # Define the output path for the Parquet file
 
     def guardar_en_parquet(self):
 
