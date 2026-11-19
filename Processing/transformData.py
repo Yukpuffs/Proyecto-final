@@ -1,15 +1,13 @@
+from pyspark.sql import functions as F # Import necessary functions from PySpark SQL module
 
-from pyspark.sql import functions as F
-
-
-class transformar_datos:
+class transformar_datos: # Define a class for data transformation
 
     def __init__(self, df):
         self.df = df
 
     def transformar(self):
 
-        df = (
+        df = ( # Filter out rows with null content, trim whitespace, and cast columns to appropriate data types
             self.df
             .filter(F.col("content").isNotNull())
             .withColumn("content", F.trim(F.col("content")))
@@ -23,8 +21,7 @@ class transformar_datos:
 
         texto = F.col("content")
 
-        # Extraer hashtags y menciones
-        df = (
+        df = ( # Extract hashtags and mentions, determine if it's a retweet or reply, and count them
             df
             .withColumn("hashtags",F.transform(F.regexp_extract_all(texto,F.lit(r"(?U)#(\w+)"),1),lambda h: F.lower(h)))
             .withColumn("menciones",F.transform(    F.regexp_extract_all(texto,F.lit(r"@(\w{1,15})"), 1 ),lambda m: F.lower(m)))
