@@ -1,45 +1,20 @@
-from pyspark.sql import SparkSession
-
-from Ingestion.readS3 import leer_datos_s3
+import os
+from ingestion.readS3 import spark, leer_datos_s3
 from Processing.transformData import transformar_datos
 from Processing.saveparquet import GuardarParquet
+from Processing.neo4j_graph import CargadorNeo4j
 
+RUTA_PARQUET = "s3a://analisis-tweets/processed/comentarios_parquet/"
 
-spark = (
-    SparkSession.builder
-    .appName("AnalisisDesinformacion")
-    .getOrCreate()
-)
+if __name__ == "__main__":
+    if os.environ.get("SKIP_ETL") == "1":
+        # Reutiliza el Parquet ya procesado en S3
+        df = spark.read.parquet(RUTA_PARQUET)
+    else:
+        crudo = leer_datos_s3(spark).leer_datos()
+        df = transformar_datos(crudo).transformar()
+        GuardarParquet(df).guardar_en_parquet()
+        df = spark.read.parquet(RUTA_PARQUET)   # el grafo se construye desde S3/Parquet
 
-spark.sparkContext.setLogLevel("ERROR")
-
-
-try:
-
-    print("Iniciando ingesta...")
-
-    lector = leer_datos_s3(spark)
-    df = lector.leer_datos()
-
-    print("Iniciando transformacion...")
-
-    transformador = transformar_datos(df)
-    df_procesado = transformador.transformar()
-
-
-    print("Estructura de los datos procesados:")
-
-    df_procesado.printSchema()
-    df_procesado.show(10, truncate=False)
-
-    print("Guardando datos en Parquet...")
-
-    guardar = GuardarParquet(df_procesado)
-    guardar.guardar_en_parquet()
-
-    print("Proceso finalizado correctamente")
-
-
-finally:
-
+    CargadorNeo4j(df).cargar()
     spark.stop()
