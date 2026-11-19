@@ -1,9 +1,9 @@
 
 <div align="center">
 
-# 🕸️ SOCIAL MEDIA GRAPH ANALYSIS
+# 🕸️ ANALISIS INFLUENCIA Y DESINFORMACIÓN EN REDES SOCIALES
 
-### DATA ENGINEERING · BIG DATA · GRAPH ANALYTICS
+### BIG DATA · ANALISIS GRAFOS
 
 <p>
   Análisis de interacciones y patrones de difusión
@@ -20,11 +20,11 @@
 
 ---
 
-## 01. Project Overview
+## 01. Descripción del problema
 
 El problema que se busca abordar consiste en analizar el comportamiento y las interacciones que se generan en las redes sociales a partir de publicaciones y comentarios relacionados con temas específicos. Se pretende comprender cómo estas interacciones pueden contribuir a la difusión de información, influir en la percepción de los usuarios y generar patrones de comunicación entre diferentes cuentas.
 
-## 02. Architecture
+## 02. Arquitectura
 
 ```mermaid
 flowchart LR
