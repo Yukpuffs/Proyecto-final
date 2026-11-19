@@ -18,6 +18,7 @@ services:
       timeout: 10s
       retries: 20
 
+
   spark:
     image: spark:${SPARK_TAG}
     dns:
