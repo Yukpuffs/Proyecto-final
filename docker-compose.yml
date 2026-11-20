@@ -29,6 +29,7 @@ services:
         condition: service_healthy
     command: >
       /opt/spark/bin/spark-submit
+      --driver-memory 4g
       --conf spark.jars.ivy=/tmp/.ivy
       --packages ${SPARK_PACKAGES}
       /app/main.py
