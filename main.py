@@ -4,6 +4,7 @@ from Ingestion.readS3 import leer_datos_s3 # Import module for reading data from
 from Processing.transformData import transformar_datos # Import module for transforming data
 from Processing.saveparquet import GuardarParquet # Import module for saving DataFrame to Parquet format
 from Processing.createnodes import CargadorNeo4j # Import module for loading data into Neo4j
+from Processing.bigquery import CargadorBigQuery
 
 
 RUTA_PARQUET = ("s3a://analisis-tweets/processed/comentarios_parquet/") # Define the S3 path for storing processed Parquet files
@@ -39,7 +40,7 @@ def main():
 
             print("Guardando datos procesados en Parquet...")
 
-            guardar = GuardarParquet(df_procesado)
+            guardar = GuardarParquet(df_procesado, RUTA_PARQUET)
             guardar.guardar_en_parquet()
 
             print("Leyendo Parquet desde S3...")
@@ -96,6 +97,16 @@ def main():
         )
 
         cargador.cargar()
+        if os.environ.get("SKIP_BQ") != "1":
+            bq = CargadorBigQuery(df_muestra)
+            bq.cargar()
+            if os.environ.get("EXPORTAR_GDS") == "1":
+                bq.cargar_resultados_gds(
+                    spark,
+                    url=os.environ.get("NEO4J_URI", "bolt://neo4j:7687"),
+                    usuario=os.environ.get("NEO4J_USER", "neo4j"),
+                    password=os.environ["NEO4J_PASSWORD"],
+                )
 
         print("Proceso finalizado correctamente.")
 
